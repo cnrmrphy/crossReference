@@ -1,12 +1,16 @@
 #!/usr/local/bin/python3
 
+import xml
 import requests
 import sys
 import os
 from bs4 import BeautifulSoup
+from bs4 import CData
 import re
 import pandas
 from pandas import DataFrame
+import json
+import pprint
 
 
 # find number of pages
@@ -32,9 +36,15 @@ def get_film_info(url):
     for poster in pageSoup.findAll("li", {"class": "poster-container"}):
         title = poster.find('img', alt=True)['alt']
         filmLink = f'https://letterboxd.com' + poster.find('div', {'class': 'poster film-poster really-lazy-load'})['data-target-link']
-        img = poster.find('img')['src']
-
-        movies[title] = {'link': filmLink, 'image-src': img}
+        infoText = requests.get(filmLink)
+        infoSoup = BeautifulSoup(infoText.content, 'lxml')
+        data = infoSoup.find('script', {'type': 'application/ld+json'}).text.splitlines()[2]
+        jsonData = json.loads(data) 
+        year = jsonData['releasedEvent'][0]['startDate'] 
+        directors = [person['name'] for person in jsonData['director']] 
+        rating = jsonData['aggregateRating']['ratingValue']
+        img = jsonData['image']
+        movies[title] = {'year': year, 'directors': directors, 'rating': rating, 'link': filmLink, 'image-src': img}
 
     return(movies)
 
@@ -59,7 +69,7 @@ def main():
     soup = BeautifulSoup(rawText.content, 'html.parser')
     pages = num_pages(soup)
     
-
+    print(unify_pages(URL, pages))
 # main execution
 if __name__ == '__main__':
     main()
