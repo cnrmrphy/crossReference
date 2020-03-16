@@ -42,7 +42,7 @@ def add_services(filename='config.json'):
     serviceQ = [
         inquirer.Checkbox('SERVICES',
             message='Select all the streaming services you would like to search: ',
-            choices=['Netflix', 'Amazon Prime Video', 'Amazon Instant Video', 'Apple TV+', 'Google Play', 'iTunes', 'YouTube Premium', 'Disney Plus', 'Hulu', 'Atom Tickets', 'CBS', 'DC Universe', 'HBO', 'Discovery Channel', 'Fandango Movies', 'Fox', 'NBC', 'Nickelodeon'],
+            choices=['Netflix', 'Amazon Prime Video', 'Amazon Instant Video', 'Apple TV Plus', 'Kanopy', 'Google Play', 'Amazon Video', 'TCM', 'Mubi', 'Criterion Channel', 'iTunes', 'YouTube Premium', 'Disney Plus', 'Hulu', 'HBO Now', 'Atom Tickets', 'CBS', 'DC Universe', 'HBO Go', 'Discovery Channel', 'Fandango Movies', 'Fox', 'NBC', 'Nickelodeon'],
             ),
         ]
     serviceA=inquirer.prompt(serviceQ)

@@ -148,8 +148,9 @@ def main():
     for item in results['items']:
         for offer in item['offers']: 
             print(f'provider id: '+str(offer['provider_id'])+' url: ' +offer['urls']['standard_web'])
-    # for tructus in item:
-    #     print(tructus)
+    
+
+
     # main soup for basic info
     #rawText = requests.get(URL)
     #soup = BeautifulSoup(rawText.content, 'html.parser')
