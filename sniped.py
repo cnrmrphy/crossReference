@@ -57,14 +57,6 @@ def unify_pages_list(url, pages):
     # wild ass list comp here lmao
     
     return([a for x in range(1, pages+1) for a in get_film_title(url+f'/page/{x}')]) 
-# unify paginations into a single dict
-def unify_pages_dict(url, pages):
-    movies = {}
-
-    for x in range(1, pages+1):
-        movies.update(get_film_info(url+f'/page/{x}'))
-
-    return(movies)
 
 # yield tuples of overlap
 def tuple_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
@@ -127,6 +119,11 @@ def config_services():
         configData = json.loads(open('config.json').read())
         return(configData["SERVICES"])
 
+# convert list of english service names to api id numbers
+def convert_services(services, filename='providers.json'):
+    output = []
+    idData = json.loads(open('config.json').read())
+
 # call api to find the 
 def main():
 
@@ -139,25 +136,23 @@ def main():
     country = config_country()
 
     services = config_services()
+
+    # empty dictionary for all the movies
+    reference_dict = {service: [] for service in services}
+   
     
+    # main soup for basic watchlist info
+    rawText = requests.get(URL)
+    soup = BeautifulSoup(rawText.content, 'html.parser')
+    pages = num_pages(soup)
+    titles = unify_pages_list(URL, pages) 
+
 
     # testing services under api
-    just_watch = JustWatch(country='US')
-
-    results = just_watch.search_for_item(query='starsky and hutch')
-    for item in results['items']:
-        for offer in item['offers']: 
-            print(f'provider id: '+str(offer['provider_id'])+' url: ' +offer['urls']['standard_web'])
-    
-
-
-    # main soup for basic info
-    #rawText = requests.get(URL)
-    #soup = BeautifulSoup(rawText.content, 'html.parser')
-    #pages = num_pages(soup)
-    
-    #titles = unify_pages_list(URL, pages)
-    
+    just_watch = JustWatch(country=country)
+    movie = titles[0]
+    results = just_watch.search_for_item(query=movie)
+    print(results)
 
 
 # main execution
