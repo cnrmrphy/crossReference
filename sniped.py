@@ -136,7 +136,7 @@ def update_provider(provider, movie, reference_dict):
         
 
 # check every movie in titles and add to cross-reference dict the ones in the config list of services
-def reference_films(titles, just_watch, reference_dict):
+def reference_films(titles, just_watch, reference_dict, idData):
     for movie in titles:
         search = search_film(movie, just_watch)
         result = search['items'][0]
@@ -177,7 +177,7 @@ def main():
 
 
     
-    reference_films(titles, just_watch, reference_dict)
+    reference_films(titles, just_watch, reference_dict, idData)
     print(reference_dict)
 # main execution
 if __name__ == '__main__':
