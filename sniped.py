@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import json
 import inquirer
 import config
+from justwatch import JustWatch
 
 
 # find number of pages
@@ -90,42 +91,66 @@ def make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS):
 def printout(big_dict):
     for service, movies in big_dict.items():
         print('Movies on '+service + ': ' + ', '.join(movies) + '\n') 
-        
-# call api to find the 
-def main():
-    # create watchlist url 
 
-    # configure username
+
+# configure username
+def config_user():
     configData = json.loads(open('config.json').read())
-    
+
     if configData["USER"]:
-        user = configData["USER"]
+        return(configData["USER"])
     else:
         config.add_user()
         configData = json.loads(open('config.json').read())
-        user = configData["USER"]
-
-    URL=f'https://letterboxd.com/{user}/watchlist'
+        return(configData["USER"])
 
 
-    # configure country code
+#conigure country code
+def config_country():
+    configData = json.loads(open('config.json').read())
+
     if configData["COUNTRY"]:
-        country = configData["COUNTRY"]
+        return(configData["COUNTRY"])
     else:
         config.add_country()
         configData = json.loads(open('config.json').read())
-        country = configData["COUNTRY"]
+        return(configData["COUNTRY"])
 
-    # configure services
+# configure services
+def config_services():
+    configData = json.loads(open('config.json').read())
+
     if configData["SERVICES"]:
-        services = configData["SERVICES"] 
+        return(configData["SERVICES"])
     else:
         config.add_services()
         configData = json.loads(open('config.json').read())
-        services = configData["SERVICES"]
+        return(configData["SERVICES"])
 
+# call api to find the 
+def main():
+
+    # TODO: create ability to reconfigure based on flag or commandline prompt
+
+    # storing config info and creating unique url for watchlist
+    user = config_user()
+    URL=f'https://letterboxd.com/{user}/watchlist'
+    
+    country = config_country()
+
+    services = config_services()
+    
+
+    # testing services under api
+    just_watch = JustWatch(country='US')
+
+    results = just_watch.search_for_item(query='starsky and hutch')
+    for item in results['items']:
+        for offer in item['offers']: 
+            print(f'provider id: '+str(offer['provider_id'])+' url: ' +offer['urls']['standard_web'])
+    # for tructus in item:
+    #     print(tructus)
     # main soup for basic info
-
     #rawText = requests.get(URL)
     #soup = BeautifulSoup(rawText.content, 'html.parser')
     #pages = num_pages(soup)
