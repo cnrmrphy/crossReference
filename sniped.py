@@ -3,14 +3,11 @@
 import xml
 import requests
 import sys
-import os
 from bs4 import BeautifulSoup
-from bs4 import CData
-import re
-import pandas
-from pandas import DataFrame
 import json
-import pprint
+import inquirer
+import config
+from justwatch import JustWatch
 
 
 # find number of pages
@@ -60,30 +57,9 @@ def unify_pages_list(url, pages):
     # wild ass list comp here lmao
     
     return([a for x in range(1, pages+1) for a in get_film_title(url+f'/page/{x}')]) 
-# unify paginations into a single dict
-def unify_pages_dict(url, pages):
-    movies = {}
-
-    for x in range(1, pages+1):
-        movies.update(get_film_info(url+f'/page/{x}'))
-
-    return(movies)
-
-# first pass to cross reference with API
-def reference_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
-    referenced_list = {service: [] for service in SERVICES}
-    for title in titles:
-        querystring = {'term': title, 'country': COUNTRY}
-        response = json.loads(requests.request('GET', apiURL, headers=HEADERS, params=querystring).text)
-        for name in response['results']:
-            for result in name['locations']:
-                if result['display_name'] in SERVICES:
-                    referenced_list[result['display_name']].append(title)
-    return(referenced_list)
 
 # yield tuples of overlap
-def scheme_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
-    referenced_list = {service: [] for service in SERVICES}
+def tuple_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
     for title in titles:
         querystring = {'term': title, 'country': COUNTRY}
         response = json.loads(requests.request('GET', apiURL, headers=HEADERS, params=querystring).text)
@@ -97,7 +73,7 @@ def scheme_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
 def make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS):
     big_dict = {service: [] for service in SERVICES}
 
-    for twosome in scheme_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
+    for twosome in tuple_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
         if twosome[1] not in big_dict[twosome[0]]:
             big_dict[twosome[0]].append(twosome[1])
     
@@ -106,35 +82,103 @@ def make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS):
 # format output
 def printout(big_dict):
     for service, movies in big_dict.items():
-        print(service + ': ' + ', '.join(movies)) 
+        print('Movies on '+service + ': ' + ', '.join(movies) + '\n') 
+
+
+# configure username
+def config_user():
+    configData = json.loads(open('config.json').read())
+
+    if configData["USER"]:
+        return(configData["USER"])
+    else:
+        config.add_user()
+        configData = json.loads(open('config.json').read())
+        return(configData["USER"])
+
+
+#conigure country code
+def config_country():
+    configData = json.loads(open('config.json').read())
+    config.add_country()
+    configData = json.loads(open('config.json').read())
+    return(configData["COUNTRY"])
+
+# configure services
+def config_services():
+    configData = json.loads(open('config.json').read())
+
+    if configData["SERVICES"]:
+        return(configData["SERVICES"])
+    else:
+        config.add_services()
+        configData = json.loads(open('config.json').read())
+        return(configData["SERVICES"])
+
+# returns a dict object with relevant information from api for a single movie
+def search_film(movie, just_watch):
+    return(just_watch.search_for_item(query=movie))
+
+# add a movie to the reference dict:
+def add_to_reference(movie, provider, reference_dict):
+    if movie not in reference_dict[provider]:
+        reference_dict[provider].append(movie)
+
+# retrieve the name of a provider for given offer in api call
+def get_provider(idData, offer):
+    return(idData[str(offer['provider_id'])]['title'])
+
+# add movie to provider list if not in already
+def update_provider(provider, movie, reference_dict):
+        if provider in reference_dict:
+            if movie not in reference_dict[provider]:
+                reference_dict[provider].append(movie)
         
-# call api to find the 
+
+# check every movie in titles and add to cross-reference dict the ones in the config list of services
+def reference_films(titles, just_watch, reference_dict):
+    for movie in titles:
+        search = search_film(movie, just_watch)
+        result = search['items'][0]
+        if movie == result['title']:
+            for offer in result['offers']:
+                update_provider(get_provider(idData, offer), movie, reference_dict)
+
+
 def main():
-    # create watchlist url 
-    user = sys.argv[1]
+
+    # TODO: create ability to reconfigure based on flag or commandline prompt
+
+    # storing config info and creating unique url for watchlist
+    user = config_user()
     URL=f'https://letterboxd.com/{user}/watchlist'
     
-    # api info:
-    apiURL='https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/lookup'
-    COUNTRY='us'
-    SERVICES=['Netflix', 'Hulu', 'Amazon Prime Video']
+    country = config_country()
 
-    HEADERS={
-    'x-rapidapi-host': "utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com",
-    'x-rapidapi-key': "5f41bc51e0mshfc2f106a7727246p155c22jsn37fd261cb5e0"
-    }
+    services = config_services()
 
-    # main soup for basic info
+    # empty dictionary for all the movies
+    reference_dict = {service: [] for service in services}
+   
+    
+    # main soup for basic watchlist info
     rawText = requests.get(URL)
     soup = BeautifulSoup(rawText.content, 'html.parser')
     pages = num_pages(soup)
-    
-    titles = unify_pages_list(URL, pages)
-    
-    big_dict = make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS)
+    titles = unify_pages_list(URL, pages) 
 
-    printout(big_dict)
 
+    # main api object
+    just_watch=JustWatch(country=country)
+    
+    # load provider/id maps
+    #providerData = json.loads(open('providers.json').read())
+    idData = json.loads(open('ids.json').read())
+
+
+    
+    reference_films(titles, just_watch, reference_dict)
+    print(reference_dict)
 # main execution
 if __name__ == '__main__':
     main()
