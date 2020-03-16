@@ -119,11 +119,6 @@ def config_services():
         configData = json.loads(open('config.json').read())
         return(configData["SERVICES"])
 
-# convert list of english service names to api id numbers
-def convert_services(services, filename='providers.json'):
-    output = []
-    idData = json.loads(open('config.json').read())
-
 # call api to find the 
 def main():
 
@@ -148,13 +143,25 @@ def main():
     titles = unify_pages_list(URL, pages) 
 
 
-    # testing services under api
+    # main api object
     just_watch = JustWatch(country=country)
+    # load provider/id maps
+    providerData = json.loads(open('providers.json').read())
+    idData = json.loads(open('ids.json').read())
+
+    # function to check a single movie in the api
     movie = titles[0]
-    results = just_watch.search_for_item(query=movie)
-    print(results)
+    search = just_watch.search_for_item(query=movie)
 
+    # for provider in just_watch.get_providers():
+    #     print(str(provider['id']) + ' '+provider['technical_name'])
 
+    if movie == search['items'][0]['title']:
+        print(f'Movie searched: {movie}; First Search Result: '+search['items'][0]['title']) 
+        for offer in search['items'][0]['offers']:
+            print(idData[str(offer['provider_id'])]['title']+ ' monetization type: '+offer['monetization_type'])
+    else:
+        print(f'{movie} Not Found')
 # main execution
 if __name__ == '__main__':
     main()
