@@ -6,6 +6,7 @@ import sys
 from bs4 import BeautifulSoup
 import json
 import inquirer
+import config
 
 
 # find number of pages
@@ -93,45 +94,45 @@ def printout(big_dict):
 # call api to find the 
 def main():
     # create watchlist url 
-    user = input('Enter your LetterBoxd username: ') 
+
+    # configure username
+    configData = json.loads(open('config.json').read())
+    
+    if configData["USER"]:
+        user = configData["USER"]
+    else:
+        config.add_user()
+        configData = json.loads(open('config.json').read())
+        user = configData["USER"]
 
     URL=f'https://letterboxd.com/{user}/watchlist'
-    
-    # api info:
-    apiURL='https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/lookup'
-    countryQ = [
-            inquirer.List('COUNTRY',
-                message='Select your location from the list: ',
-                choices=['us', 'uk', 'ar', 'at', 'au', 'be', 'br', 'ca', 'ch', 'cz','dk', 'de', 'ee', 'es', 'fr', 'hk', 'hu', 'ie', 'il', 'in', 'is', 'it', 'jp', 'kr', 'lt', 'lv', 'mx', 'nl', 'no', 'nz', 'ph', 'pl', 'pt', 'ro', 'ru', 'se', 'sg', 'sk', 'th', 'za'],
-                ),
-            ]
-    countryA = inquirer.prompt(countryQ)
-    COUNTRY=countryA['COUNTRY']
-    print(COUNTRY)
 
-    serviceQ = [
-            inquirer.Checkbox('SERVICES',
-                message='Select all the streaming services you would like to search: ',
-                choices=['Netflix', 'Amazon Prime Video', 'Amazon Instant Video', 'Apple TV+', 'Google Play', 'iTunes', 'YouTube Premium', 'Disney Plus', 'Hulu', 'Atom Tickets', 'CBS', 'DC Universe', 'HBO', 'Discovery Channel', 'Fandango Movies', 'Fox', 'NBC', 'Nickelodeon'],
-                ),
-            ]
-    serviceA=inquirer.prompt(serviceQ)
-    SERVICES=serviceA['SERVICES']
-    HEADERS={
-    'x-rapidapi-host': "utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com",
-    'x-rapidapi-key': "5f41bc51e0mshfc2f106a7727246p155c22jsn37fd261cb5e0"
-    }
+
+    # configure country code
+    if configData["COUNTRY"]:
+        country = configData["COUNTRY"]
+    else:
+        config.add_country()
+        configData = json.loads(open('config.json').read())
+        country = configData["COUNTRY"]
+
+    # configure services
+    if configData["SERVICES"]:
+        services = configData["SERVICES"] 
+    else:
+        config.add_services()
+        configData = json.loads(open('config.json').read())
+        services = configData["SERVICES"]
 
     # main soup for basic info
-    rawText = requests.get(URL)
-    soup = BeautifulSoup(rawText.content, 'html.parser')
-    pages = num_pages(soup)
-    
-    titles = unify_pages_list(URL, pages)
-    
-    #big_dict = make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS)
 
-    printout(big_dict)
+    #rawText = requests.get(URL)
+    #soup = BeautifulSoup(rawText.content, 'html.parser')
+    #pages = num_pages(soup)
+    
+    #titles = unify_pages_list(URL, pages)
+    
+
 
 # main execution
 if __name__ == '__main__':
