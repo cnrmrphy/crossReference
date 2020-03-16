@@ -3,14 +3,9 @@
 import xml
 import requests
 import sys
-import os
 from bs4 import BeautifulSoup
-from bs4 import CData
-import re
-import pandas
-from pandas import DataFrame
 import json
-import pprint
+import inquirer
 
 
 # find number of pages
@@ -106,19 +101,35 @@ def make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS):
 # format output
 def printout(big_dict):
     for service, movies in big_dict.items():
-        print(service + ': ' + ', '.join(movies)) 
+        print('Movies on '+service + ': ' + ', '.join(movies) + '\n') 
         
 # call api to find the 
 def main():
     # create watchlist url 
-    user = sys.argv[1]
+    user = input('Enter your LetterBoxd username: ') 
+
     URL=f'https://letterboxd.com/{user}/watchlist'
     
     # api info:
     apiURL='https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/lookup'
-    COUNTRY='us'
-    SERVICES=['Netflix', 'Hulu', 'Amazon Prime Video']
+    countryQ = [
+            inquirer.List('COUNTRY',
+                message='Select your location from the list: ',
+                choices=['us', 'uk', 'ar', 'at', 'au', 'be', 'br', 'ca', 'ch', 'cz','dk', 'de', 'ee', 'es', 'fr', 'hk', 'hu', 'ie', 'il', 'in', 'is', 'it', 'jp', 'kr', 'lt', 'lv', 'mx', 'nl', 'no', 'nz', 'ph', 'pl', 'pt', 'ro', 'ru', 'se', 'sg', 'sk', 'th', 'za'],
+                ),
+            ]
+    countryA = inquirer.prompt(countryQ)
+    COUNTRY=countryA['COUNTRY']
+    print(COUNTRY)
 
+    serviceQ = [
+            inquirer.Checkbox('SERVICES',
+                message='Select all the streaming services you would like to search: ',
+                choices=['Netflix', 'Amazon Prime Video', 'Amazon Instant Video', 'Apple TV+', 'Google Play', 'iTunes', 'YouTube Premium', 'Disney Plus', 'Hulu', 'Atom Tickets', 'CBS', 'DC Universe', 'HBO', 'Discovery Channel', 'Fandango Movies', 'Fox', 'NBC', 'Nickelodeon'],
+                ),
+            ]
+    serviceA=inquirer.prompt(serviceQ)
+    SERVICES=serviceA['SERVICES']
     HEADERS={
     'x-rapidapi-host': "utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com",
     'x-rapidapi-key': "5f41bc51e0mshfc2f106a7727246p155c22jsn37fd261cb5e0"
