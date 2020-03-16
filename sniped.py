@@ -100,13 +100,9 @@ def config_user():
 #conigure country code
 def config_country():
     configData = json.loads(open('config.json').read())
-
-    if configData["COUNTRY"]:
-        return(configData["COUNTRY"])
-    else:
-        config.add_country()
-        configData = json.loads(open('config.json').read())
-        return(configData["COUNTRY"])
+    config.add_country()
+    configData = json.loads(open('config.json').read())
+    return(configData["COUNTRY"])
 
 # configure services
 def config_services():
@@ -119,7 +115,36 @@ def config_services():
         configData = json.loads(open('config.json').read())
         return(configData["SERVICES"])
 
-# call api to find the 
+# returns a dict object with relevant information from api for a single movie
+def search_film(movie, just_watch):
+    return(just_watch.search_for_item(query=movie))
+
+# add a movie to the reference dict:
+def add_to_reference(movie, provider, reference_dict):
+    if movie not in reference_dict[provider]:
+        reference_dict[provider].append(movie)
+
+# retrieve the name of a provider for given offer in api call
+def get_provider(idData, offer):
+    return(idData[str(offer['provider_id'])]['title'])
+
+# add movie to provider list if not in already
+def update_provider(provider, movie, reference_dict):
+        if provider in reference_dict:
+            if movie not in reference_dict[provider]:
+                reference_dict[provider].append(movie)
+        
+
+# check every movie in titles and add to cross-reference dict the ones in the config list of services
+def reference_films(titles, just_watch, reference_dict):
+    for movie in titles:
+        search = search_film(movie, just_watch)
+        result = search['items'][0]
+        if movie == result['title']:
+            for offer in result['offers']:
+                update_provider(get_provider(idData, offer), movie, reference_dict)
+
+
 def main():
 
     # TODO: create ability to reconfigure based on flag or commandline prompt
@@ -144,24 +169,16 @@ def main():
 
 
     # main api object
-    just_watch = JustWatch(country=country)
+    just_watch=JustWatch(country=country)
+    
     # load provider/id maps
-    providerData = json.loads(open('providers.json').read())
+    #providerData = json.loads(open('providers.json').read())
     idData = json.loads(open('ids.json').read())
 
-    # function to check a single movie in the api
-    movie = titles[0]
-    search = just_watch.search_for_item(query=movie)
 
-    # for provider in just_watch.get_providers():
-    #     print(str(provider['id']) + ' '+provider['technical_name'])
-
-    if movie == search['items'][0]['title']:
-        print(f'Movie searched: {movie}; First Search Result: '+search['items'][0]['title']) 
-        for offer in search['items'][0]['offers']:
-            print(idData[str(offer['provider_id'])]['title']+ ' monetization type: '+offer['monetization_type'])
-    else:
-        print(f'{movie} Not Found')
+    
+    reference_films(titles, just_watch, reference_dict)
+    print(reference_dict)
 # main execution
 if __name__ == '__main__':
     main()

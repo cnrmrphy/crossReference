@@ -19,6 +19,7 @@
     "43": {"code": "stz", "title":"Starz"},
     "258": {"code": "crc", "title": "Criterion Channel"},
     "105": {"code": "fdg", "title": "FandangoNOW"},
+    "60": {"code": "fad", "title": "Fandango"},
     "7": {"code": "vdu", "title": "Vudu"},
     "332": {"code": "vuf", "title": "VUDU Free"},
     "374": {"code": "qbi", "title": "Quibi"},
