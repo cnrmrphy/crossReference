@@ -64,21 +64,8 @@ def unify_pages_dict(url, pages):
 
     return(movies)
 
-# first pass to cross reference with API
-def reference_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
-    referenced_list = {service: [] for service in SERVICES}
-    for title in titles:
-        querystring = {'term': title, 'country': COUNTRY}
-        response = json.loads(requests.request('GET', apiURL, headers=HEADERS, params=querystring).text)
-        for name in response['results']:
-            for result in name['locations']:
-                if result['display_name'] in SERVICES:
-                    referenced_list[result['display_name']].append(title)
-    return(referenced_list)
-
 # yield tuples of overlap
-def scheme_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
-    referenced_list = {service: [] for service in SERVICES}
+def tuple_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
     for title in titles:
         querystring = {'term': title, 'country': COUNTRY}
         response = json.loads(requests.request('GET', apiURL, headers=HEADERS, params=querystring).text)
@@ -92,7 +79,7 @@ def scheme_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
 def make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS):
     big_dict = {service: [] for service in SERVICES}
 
-    for twosome in scheme_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
+    for twosome in tuple_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
         if twosome[1] not in big_dict[twosome[0]]:
             big_dict[twosome[0]].append(twosome[1])
     
@@ -142,7 +129,7 @@ def main():
     
     titles = unify_pages_list(URL, pages)
     
-    big_dict = make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS)
+    #big_dict = make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS)
 
     printout(big_dict)
 
