@@ -7,7 +7,7 @@ import sys
 from bs4 import BeautifulSoup
 import json
 import inquirer
-import config
+from config_files import config 
 from justwatch import JustWatch
 import argparse
 
@@ -66,36 +66,6 @@ def printout(big_dict):
         print('Movies on '+service + ': ' + ', '.join(movies) + '\n') 
 
 
-# configure username
-def config_user():
-    configData = json.loads(open('config.json').read())
-
-    if configData["USER"]:
-        return(configData["USER"])
-    else:
-        config.add_user()
-        configData = json.loads(open('config.json').read())
-        return(configData["USER"])
-
-
-#conigure country code
-def config_country():
-    configData = json.loads(open('config.json').read())
-    config.add_country()
-    configData = json.loads(open('config.json').read())
-    return(configData["COUNTRY"])
-
-# configure services
-def config_services():
-    configData = json.loads(open('config.json').read())
-
-    if configData["SERVICES"]:
-        return(configData["SERVICES"])
-    else:
-        config.add_services()
-        configData = json.loads(open('config.json').read())
-        return(configData["SERVICES"])
-
 # returns a dict object with relevant information from api for a single movie
 def search_film(movie, just_watch):
     return(just_watch.search_for_item(query=movie))
@@ -112,8 +82,8 @@ def get_provider(idData, offer):
 # add movie to provider list if not in already
 def update_provider(provider, movie, reference_dict):
         if provider in reference_dict:
-            if movie not in reference_dict[provider]:
-                reference_dict[provider].append(movie)
+            if movie not in reference_dict[provider]["films"]:
+                reference_dict[provider]["films"].append(movie)
         
 
 # check every movie in titles and add to cross-reference dict the ones in the config list of services
@@ -127,24 +97,27 @@ def reference_films(titles, just_watch, reference_dict, idData):
 
 
 def main():
-
+    
     # reconfigure based on flag or commandline prompt
     parser = argparse.ArgumentParser(description="Configuration Command Flags")
     parser.add_argument('-r', '--reconfigure', action='store_true', help='reset configuration file')
     args = parser.parse_args()
     if args.reconfigure:
         config.clear_config()
+    
+    
     # storing config info and creating unique url for watchlist
-    user = config_user()
+    config.main()
+
+    configData = json.loads(open('config_files/config.json').read())
+
+    user = configData["USER"]
+    country = configData["COUNTRY"]
+    services = configData["SERVICES"] 
+
     URL=f'https://letterboxd.com/{user}/watchlist'
     
-    country = config_country()
-
-    services = config_services()
-
-    # empty dictionary for all the movies
-    reference_dict = {service: [] for service in services}
-   
+    
     
     # main soup for basic watchlist info
     rawText = requests.get(URL)
@@ -157,11 +130,18 @@ def main():
     just_watch=JustWatch(country=country)
     
     # load provider/id maps
-    #providerData = json.loads(open('providers.json').read())
+    providerData = json.loads(open('providers.json').read())
     idData = json.loads(open('ids.json').read())
-
     
-    reference_films(titles, just_watch, reference_dict, idData)
+
+    # empty dictionary for all the movies
+    reference_dict = {service: {"id": providerData[service], "films": [], "type": ""} for service in services}
+    
+
+
+
+    #ACTUAL EXECUTION STEP LOL
+    #reference_films(titles, just_watch, reference_dict, idData)
     print(reference_dict)
 # main execution
 if __name__ == '__main__':
