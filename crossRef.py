@@ -103,7 +103,7 @@ def main():
     parser.add_argument('-r', '--reconfigure', action='store_true', help='reset configuration file')
     args = parser.parse_args()
     if args.reconfigure:
-        config.clear_config()
+        config.clear_config('config_files/config.json')
     
     
     # storing config info and creating unique url for watchlist

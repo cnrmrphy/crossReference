@@ -10,6 +10,7 @@ import inquirer
 # to test this script directly switch the following comments:
 #from providers import load_providers
 from config_files.providers import load_providers
+from difflib import get_close_matches
 
 
 def add_country(filename):
@@ -41,14 +42,29 @@ def add_user(filename):
         json.dump(data, f, indent=4)
 
 def add_services(filename):
-    serviceQ = [
-        inquirer.Checkbox('SERVICES',
-            message='Select all the services you would like to search',
-            choices=['Netflix', 'Amazon Prime Video', 'Amazon Instant Video', 'Apple TV Plus', 'Kanopy', 'Google Play', 'Amazon Video', 'TCM', 'Mubi', 'Criterion Channel', 'iTunes', 'YouTube Premium', 'Disney Plus', 'Hulu', 'HBO Now', 'Atom Tickets', 'CBS', 'DC Universe', 'HBO Go', 'Discovery Channel', 'Fandango Movies', 'Fox', 'NBC', 'Nickelodeon'],
-            ),
-        ]
-    serviceA=inquirer.prompt(serviceQ)
-    services=serviceA['SERVICES']
+    # serviceQ = [
+    #     inquirer.Checkbox('SERVICES',
+    #         message='Select all the services you would like to search',
+    #         choices=['Netflix', 'Amazon Prime Video', 'Amazon Instant Video', 'Apple TV Plus', 'Kanopy', 'Google Play', 'Amazon Video', 'TCM', 'Mubi', 'Criterion Channel', 'iTunes', 'YouTube Premium', 'Disney Plus', 'Hulu', 'HBO Now', 'Atom Tickets', 'CBS', 'DC Universe', 'HBO Go', 'Discovery Channel', 'Fandango Movies', 'Fox', 'NBC', 'Nickelodeon'],
+    #         ),
+    #     ]
+    # serviceA=inquirer.prompt(serviceQ)
+    # services=serviceA['SERVICES']
+    providers = list(json.loads(open('config_files/providers/providerData.json', 'r').read()).keys())
+    services = []
+    cont = True
+    word = input("Enter a service you would like to search: ")
+    while cont:
+        if word != "done":
+            matches = get_close_matches(word, providers)
+            print(matches)
+            services.append(word)
+        else:
+            cont = False
+            continue
+        word = input("Enter another serice, or enter \"done\" to quit: ")
+    print(services)    
+
 
     with open(filename, 'r') as f:
         data = json.load(f)
@@ -72,6 +88,10 @@ def clear_config(filename):
 
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
+
+    open('config_files/providers/idData.json', 'w').close()
+    open('config_files/providers/providerData.json', 'w').close()
+
 
 
 def main():
