@@ -2,6 +2,7 @@
 
 import xml
 import requests
+import re
 import sys
 from bs4 import BeautifulSoup
 import json
@@ -58,27 +59,6 @@ def unify_pages_list(url, pages):
     # wild ass list comp here lmao
     
     return([a for x in range(1, pages+1) for a in get_film_title(url+f'/page/{x}')]) 
-
-# yield tuples of overlap
-def tuple_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
-    for title in titles:
-        querystring = {'term': title, 'country': COUNTRY}
-        response = json.loads(requests.request('GET', apiURL, headers=HEADERS, params=querystring).text)
-        for name in response['results']:
-            movie = name['name']
-            if name['name'] == title:
-                for result in name['locations']:
-                    if result['display_name'] in SERVICES:
-                        yield result['display_name'], movie
-# yield dictionary per streaming service
-def make_dict(titles, COUNTRY, SERVICES, apiURL, HEADERS):
-    big_dict = {service: [] for service in SERVICES}
-
-    for twosome in tuple_API(titles, COUNTRY, SERVICES, apiURL, HEADERS):
-        if twosome[1] not in big_dict[twosome[0]]:
-            big_dict[twosome[0]].append(twosome[1])
-    
-    return(big_dict)
 
 # format output
 def printout(big_dict):
@@ -179,7 +159,6 @@ def main():
     # load provider/id maps
     #providerData = json.loads(open('providers.json').read())
     idData = json.loads(open('ids.json').read())
-
 
     
     reference_films(titles, just_watch, reference_dict, idData)
