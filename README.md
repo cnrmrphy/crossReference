@@ -5,11 +5,11 @@ python utility to crossreference Letterboxd watchlist with libraries of preferre
 
 ## usage
 
-running the main script is all one has to do for 
+on install, running the crossRef.py script will configure your watchlist and preferred services. at present i have not included all possible services in the configuration script, but you can view the complete list in ids.json and manually add any of them to the config.json list.  
 
 ## Note
 
-this project uses the [unoffical Justwatch API](https://github.com/dawoudt/JustWatchAPI) developed by [dawoudt](https://github.com/dawoudt). as such, this cannot be used for any commercial or otherwise high volume projects. 
+this project uses the [unoffical Justwatch API](https://github.com/dawoudt/JustWatchAPI) developed by [dawoudt](https://github.com/dawoudt). as such, this cannot be incorporated into any commercial or otherwise high volume projects. 
 
 ## License
 
