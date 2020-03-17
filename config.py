@@ -57,4 +57,20 @@ def add_services(filename='config.json'):
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
 
+def clear_config(filename='config.json'):
+    with open(filename, 'r') as f:
+        data = json.load(f)
+        for key in data:
+            if type(data[key])==list:
+                data[key] = []
+            else:
+                data[key] = ""
 
+    os.remove(filename)
+    print(data)
+
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=4)
+
+
+clear_config()
