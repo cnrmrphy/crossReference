@@ -8,6 +8,7 @@ import json
 import inquirer
 import config
 from justwatch import JustWatch
+import argparse
 
 
 # find number of pages
@@ -147,8 +148,12 @@ def reference_films(titles, just_watch, reference_dict, idData):
 
 def main():
 
-    # TODO: create ability to reconfigure based on flag or commandline prompt
-
+    # reconfigure based on flag or commandline prompt
+    parser = argparse.ArgumentParser(description="Configuration Command Flags")
+    parser.add_argument('-r', '--reconfigure', action='store_true', help='reset configuration file')
+    args = parser.parse_args()
+    if args.reconfigure:
+        config.clear_config()
     # storing config info and creating unique url for watchlist
     user = config_user()
     URL=f'https://letterboxd.com/{user}/watchlist'
