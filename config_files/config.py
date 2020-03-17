@@ -7,7 +7,9 @@ import geopy
 import os
 import json
 import inquirer
-from providers import load_providers
+# to test this script directly switch the following comments:
+#from providers import load_providers
+from config_files.providers import load_providers
 
 
 def add_country(filename):
@@ -73,7 +75,9 @@ def clear_config(filename):
 
 
 def main():
-    filename = 'config.json'
+    # to test directly, switch the following comments 
+    #filename = 'config.json'
+    filename = 'config_files/config.json'
     configData = json.loads(open(filename).read())
    
     if not configData["USER"]:

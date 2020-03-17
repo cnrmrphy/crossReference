@@ -130,15 +130,15 @@ def main():
     just_watch=JustWatch(country=country)
     
     # load provider/id maps
-    providerData = json.loads(open('providers.json').read())
-    idData = json.loads(open('ids.json').read())
+    providerData = json.loads(open('config_files/providers/providerData.json').read())
+    idData = json.loads(open('config_files/providers/idData.json').read())
     
-
+    # TODO: scheme the streaming types maybe using this type field
     # empty dictionary for all the movies
     reference_dict = {service: {"id": providerData[service], "films": [], "type": ""} for service in services}
     
 
-
+    # TODO: scheme manual entry of providers in below guys
 
     #ACTUAL EXECUTION STEP LOL
     #reference_films(titles, just_watch, reference_dict, idData)
