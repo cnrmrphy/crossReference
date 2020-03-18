@@ -2,6 +2,8 @@
     "USER": "cmurph29",
     "COUNTRY": "US",
     "SERVICES": [
-        "Netflix"
+        "Netflix",
+        "Hulu",
+        "Amazon Prime Video"
     ]
 }

@@ -77,7 +77,7 @@ def add_to_reference(movie, provider, reference_dict):
 
 # retrieve the name of a provider for given offer in api call
 def get_provider(idData, offer):
-    return(idData[str(offer['provider_id'])]['title'])
+    return(idData[str(offer['provider_id'])])
 
 # add movie to provider list if not in already
 def update_provider(provider, movie, reference_dict):
@@ -138,10 +138,9 @@ def main():
     reference_dict = {service: {"id": providerData[service], "films": [], "type": ""} for service in services}
     
 
-    # TODO: scheme manual entry of providers in below guys
 
     #ACTUAL EXECUTION STEP LOL
-    #reference_films(titles, just_watch, reference_dict, idData)
+    reference_films(titles, just_watch, reference_dict, idData)
     print(reference_dict)
 # main execution
 if __name__ == '__main__':
