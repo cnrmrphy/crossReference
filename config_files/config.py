@@ -53,15 +53,24 @@ def add_services(filename):
                 if matches[0] == word:
                     services.append(word)
                 elif len(matches) > 0:                
-                    print('Did you mean:')
-                    for match in matches:
-                        print(match)
+                    matches.append("None")
+                    questions = [
+                        inquirer.List('service',
+                            message="Did you mean?",
+                            choices=matches,
+                        ),
+                    ]                   
+                    word = inquirer.prompt(questions)
+                    if not word == "None":
+                        services.append(word['service'])
+                    else:
+                        print("Not a valid service")
             else:
                 print('Not a valid service')
         else:
             cont = False
             continue
-        word = input("Enter another serice, or enter \"done\" to quit: ")
+        word = input("Enter another service, or enter \"done\" to quit: ")
 
     with open(filename, 'r') as f:
         data = json.load(f)

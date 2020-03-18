@@ -140,7 +140,7 @@ def main():
 
 
     #ACTUAL EXECUTION STEP LOL
-    reference_films(titles, just_watch, reference_dict, idData)
+    #reference_films(titles, just_watch, reference_dict, idData)
     print(reference_dict)
 # main execution
 if __name__ == '__main__':
