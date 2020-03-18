@@ -2,9 +2,8 @@
     "USER": "cmurph29",
     "COUNTRY": "US",
     "SERVICES": [
-        "Apple iTunes",
-        "Netflix",
         "Hulu",
+        "Netflix",
         "Amazon Prime Video"
     ]
 }

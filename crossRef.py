@@ -84,7 +84,17 @@ def update_provider(provider, movie, reference_dict):
         if provider in reference_dict:
             if movie not in reference_dict[provider]["films"]:
                 reference_dict[provider]["films"].append(movie)
-        
+
+# format output
+def format_output(reference_dict):
+    print('Films by Service:')
+    print()
+    for service in reference_dict:
+        print(f'{service}:')
+        for title in reference_dict[service]['films']:
+            print('    '+title)
+        print()
+
 
 # check every movie in titles and add to cross-reference dict the ones in the config list of services
 def reference_films(titles, just_watch, reference_dict, idData):
@@ -140,8 +150,8 @@ def main():
 
 
     #ACTUAL EXECUTION STEP LOL
-    #reference_films(titles, just_watch, reference_dict, idData)
-    print(reference_dict)
+    reference_films(titles, just_watch, reference_dict, idData)
+    format_output(reference_dict)
 # main execution
 if __name__ == '__main__':
     main()
