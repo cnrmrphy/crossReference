@@ -42,14 +42,6 @@ def add_user(filename):
         json.dump(data, f, indent=4)
 
 def add_services(filename):
-    # serviceQ = [
-    #     inquirer.Checkbox('SERVICES',
-    #         message='Select all the services you would like to search',
-    #         choices=['Netflix', 'Amazon Prime Video', 'Amazon Instant Video', 'Apple TV Plus', 'Kanopy', 'Google Play', 'Amazon Video', 'TCM', 'Mubi', 'Criterion Channel', 'iTunes', 'YouTube Premium', 'Disney Plus', 'Hulu', 'HBO Now', 'Atom Tickets', 'CBS', 'DC Universe', 'HBO Go', 'Discovery Channel', 'Fandango Movies', 'Fox', 'NBC', 'Nickelodeon'],
-    #         ),
-    #     ]
-    # serviceA=inquirer.prompt(serviceQ)
-    # services=serviceA['SERVICES']
     providers = list(json.loads(open('config_files/providers/providerData.json', 'r').read()).keys())
     services = []
     cont = True
@@ -57,14 +49,19 @@ def add_services(filename):
     while cont:
         if word != "done":
             matches = get_close_matches(word, providers)
-            print(matches)
-            services.append(word)
+            if matches:
+                if matches[0] == word:
+                    services.append(word)
+                elif len(matches) > 0:                
+                    print('Did you mean:')
+                    for match in matches:
+                        print(match)
+            else:
+                print('Not a valid service')
         else:
             cont = False
             continue
         word = input("Enter another serice, or enter \"done\" to quit: ")
-    print(services)    
-
 
     with open(filename, 'r') as f:
         data = json.load(f)
