@@ -102,8 +102,9 @@ def reference_films(titles, just_watch, reference_dict, idData):
         search = search_film(movie, just_watch)
         result = search['items'][0]
         if movie == result['title']:
-            for offer in result['offers']:
-                update_provider(get_provider(idData, offer), movie, reference_dict)
+            if 'offers' in result.keys():
+                for offer in result['offers']:
+                    update_provider(get_provider(idData, offer), movie, reference_dict)
 
 
 def main():
