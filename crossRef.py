@@ -87,7 +87,7 @@ def update_provider(provider, movie, reference_dict):
 
 # format output
 def format_output(reference_dict):
-    print('Films by Service:')
+    print('Films in Watchlist by Service:')
     print()
     for service in reference_dict:
         print(f'{service}:')
@@ -147,7 +147,6 @@ def main():
     # TODO: scheme the streaming types maybe using this type field
     # empty dictionary for all the movies
     reference_dict = {service: {"id": providerData[service], "films": [], "type": ""} for service in services}
-    
 
 
     #ACTUAL EXECUTION STEP LOL

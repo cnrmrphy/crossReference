@@ -71,12 +71,13 @@ def add_services(filename):
 
     with open(filename, 'r') as f:
         data = json.load(f)
-        data["SERVICES"] = services 
+        data["SERVICES"].extend(services)
 
     os.remove(filename)
 
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
+
 
 def clear_config(filename):
     with open(filename, 'r') as f:
@@ -95,7 +96,61 @@ def clear_config(filename):
     open('config_files/providers/idData.json', 'w').close()
     open('config_files/providers/providerData.json', 'w').close()
 
+# print out to the user all services they have previously configured that are available in their current location
+def filter_services(filename, configData):
+    providers = list(json.loads(open('config_files/providers/providerData.json', 'r').read()).keys())
+    #referencing all avilable providers in the user's country from api
+    user_services = [service for service in configData['SERVICES'] if service in providers] 
 
+    print('Current Preferred Services List:')
+    for service in user_services:
+        print(f'\t{service}')
+    print()
+
+# let the user review their list of preferred services
+def configure_current_services(filename):
+    options = [
+        inquirer.Checkbox('configs',
+                            message='Select any of the following options, or select \'Continue\' to proceed without making changes:',
+                            choices=['Add service(s)', 'Remove service(s)', 'Clear all services', 'Continue'],
+                          ),
+    ]
+
+    choices = inquirer.prompt(options)['configs']
+    if 'Clear all services' in choices:
+        with open(filename, 'r') as f:
+            data = json.load(f)
+            data["SERVICES"] = []
+
+        os.remove(filename)
+
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=4)
+
+        add_services(filename)
+    else: 
+        if 'Add service(s)' in choices:
+            add_services(filename)
+        if 'Remove service(s)' in choices:
+            delete_existing_service(filename)
+
+# let the user pick a service from their config file to delete
+def delete_existing_service(filename):
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    options = [
+        inquirer.Checkbox('deleted',
+                            message='Select to delete any of your services',
+                            choices = data["SERVICES"],
+                        ),
+    ]
+    choices = inquirer.prompt(options)['deleted']
+    for service in choices:
+        data["SERVICES"].remove(service)
+    
+    os.remove(filename)
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=4)
 
 def main():
     # to test directly, switch the following comments 
@@ -113,6 +168,11 @@ def main():
     
     if not configData["SERVICES"]:
         add_services(filename)
+        configData = json.loads(open(filename).read())
+    filter_services(filename, configData)
+    configure_current_services(filename)
+    configData = json.loads(open(filename).read())
+    filter_services(filename, configData)
     
 
 if __name__ == '__main__':

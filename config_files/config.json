@@ -2,11 +2,6 @@
     "USER": "cmurph29",
     "COUNTRY": "US",
     "SERVICES": [
-        "Netflix",
-        "Kanopy",
-        "Mubi",
-        "Hulu",
-        "Amazon Prime Video",
-        "Showtime"
+        "Hulu"
     ]
 }
