@@ -1,7 +1,5 @@
 #!/usr/local/bin/python3
 
-from geopy import geocoders
-import geocoder
 import requests
 import geopy
 import os
@@ -14,10 +12,9 @@ from difflib import get_close_matches
 
 
 def add_country(filename):
-    loc = geocoder.ip('me').latlng
     
-    code = requests.get(f'http://api.geonames.org/countryCode?lat={loc[0]}&lng={loc[1]}&username=steemer').text.strip()
-
+    code = requests.get('https://ipinfo.io/country').text.strip()
+    
     with open(filename, 'r') as f:
         data = json.load(f)
         data["COUNTRY"] = code
@@ -70,7 +67,7 @@ def add_services(filename):
         else:
             cont = False
             continue
-        word = input("Enter another service, or enter \"done\" to quit: ")
+        word = input("Enter another service, or enter \"done\" to continue: ")
 
     with open(filename, 'r') as f:
         data = json.load(f)
